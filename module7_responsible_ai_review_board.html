@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Responsible AI Review Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#12203a;
+    --ink2:#1c2f52;
+    --ink3:#233a63;
+    --paper:#f6f1e4;
+    --paper2:#efe4c8;
+    --paper-line:#d9cca3;
+    --brass:#c9a227;
+    --brass-dark:#8f6c15;
+    --green:#3a7d5c;
+    --green-dark:#2a5c43;
+    --red:#a8382f;
+    --red-dark:#7c2822;
+    --slate:#5b6478;
+    --text:#1b1f2a;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(circle at 15% 8%, rgba(201,162,39,0.10), transparent 40%),
+      radial-gradient(circle at 90% 90%, rgba(201,162,39,0.06), transparent 45%),
+      var(--ink);
+    color:var(--paper);
+    font-family:'IBM Plex Sans', sans-serif;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    padding:28px 14px 60px;
+  }
+  .app{
+    width:100%;
+    max-width:760px;
+  }
+  .brandbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:18px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:#a9b3c9;
+  }
+  .brandbar .seal{
+    width:30px;height:30px;border-radius:50%;
+    border:1.5px solid var(--brass);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Fraunces',serif;font-weight:700;color:var(--brass);
+    font-size:13px;
+  }
+  .brand-left{display:flex;align-items:center;gap:10px;}
+  .progress-wrap{
+    display:flex;align-items:center;gap:8px;
+    margin-bottom:22px;
+  }
+  .progress-track{
+    flex:1;height:6px;background:rgba(255,255,255,0.08);
+    border-radius:3px;overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;background:linear-gradient(90deg,var(--brass-dark),var(--brass));
+    width:0%;transition:width .5s ease;
+  }
+  .xp{
+    font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--brass);
+    white-space:nowrap;
+  }
+
+  .card{
+    background:var(--paper);
+    color:var(--text);
+    border-radius:4px;
+    padding:34px 34px 30px;
+    box-shadow:0 20px 50px rgba(0,0,0,0.35), 0 0 0 1px rgba(0,0,0,0.04);
+    position:relative;
+    overflow:hidden;
+    animation:fadeIn .5s ease;
+  }
+  .card::before{
+    content:"";
+    position:absolute;inset:10px;
+    border:1px solid var(--paper-line);
+    pointer-events:none;
+  }
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--brass-dark);
+    display:flex;align-items:center;gap:8px;
+    margin-bottom:10px;
+  }
+  .eyebrow::before{content:"";width:16px;height:1px;background:var(--brass-dark);display:inline-block;}
+  h1{
+    font-family:'Fraunces',serif;font-weight:900;font-size:30px;
+    margin:0 0 12px; line-height:1.15; letter-spacing:-.01em;
+  }
+  h2{
+    font-family:'Fraunces',serif;font-weight:700;font-size:22px;
+    margin:0 0 10px;
+  }
+  p{line-height:1.6;font-size:15px;color:#33394a;margin:0 0 14px;}
+  .lede{font-size:16.5px;color:#2a2f3d;}
+
+  .case-number{
+    position:absolute; top:20px; right:26px;
+    font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--paper-line);
+    letter-spacing:.08em;
+  }
+
+  .btn{
+    font-family:'IBM Plex Sans',sans-serif;
+    font-weight:600; font-size:14.5px;
+    border:none; border-radius:3px; cursor:pointer;
+    padding:13px 22px;
+    background:var(--ink);
+    color:var(--paper);
+    transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+  }
+  .btn:hover{transform:translateY(-1px); box-shadow:0 6px 16px rgba(0,0,0,0.18); background:var(--ink2);}
+  .btn:active{transform:translateY(0);}
+  .btn:disabled{opacity:.35; cursor:not-allowed; transform:none; box-shadow:none;}
+  .btn-brass{background:var(--brass-dark); color:#241b04;}
+  .btn-brass:hover{background:var(--brass);}
+  .btn-ghost{background:transparent; color:var(--ink); box-shadow:inset 0 0 0 1.5px var(--ink);}
+  .btn-ghost:hover{background:rgba(18,32,58,0.06); box-shadow:inset 0 0 0 1.5px var(--ink);}
+  .btn-row{display:flex; gap:12px; flex-wrap:wrap; margin-top:20px;}
+
+  .choice-list{display:flex; flex-direction:column; gap:10px; margin:18px 0 6px;}
+  .choice{
+    text-align:left;
+    border:1.5px solid #d9cca3; background:#fffdf7;
+    border-radius:4px; padding:14px 16px; cursor:pointer;
+    font-family:'IBM Plex Sans',sans-serif; font-size:15px; color:var(--text);
+    display:flex; align-items:center; gap:12px;
+    transition:border-color .15s ease, background .15s ease, transform .1s ease;
+  }
+  .choice:hover{border-color:var(--brass); background:#fbf3dd; transform:translateX(2px);}
+  .choice.correct{border-color:var(--green); background:#e9f3ee;}
+  .choice.incorrect{border-color:var(--red); background:#f7eae9;}
+  .choice.locked{cursor:default; transform:none;}
+  .choice .tag{
+    font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--slate);
+    background:#efe6d0; border-radius:2px; padding:2px 7px; flex-shrink:0;
+  }
+
+  .feedback-box{
+    margin-top:16px; padding:14px 16px; border-radius:3px;
+    background:#eef1e6; border-left:4px solid var(--green);
+    font-size:14.5px; color:#2c3a2f; animation:fadeIn .35s ease;
+  }
+  .feedback-box.warn{background:#f7f1e2; border-left-color:var(--brass-dark); color:#4a3c10;}
+  .feedback-box.bad{background:#f7eae9; border-left-color:var(--red); color:#5c2521;}
+
+  .chip-row{display:flex; gap:10px; flex-wrap:wrap; margin:16px 0;}
+  .rate-chip{
+    border:1.5px solid #d9cca3; background:#fffdf7; border-radius:20px;
+    padding:9px 15px; font-size:13.5px; font-weight:600; cursor:pointer; color:var(--text);
+    transition:all .15s ease;
+  }
+  .rate-chip:hover{background:#fbf3dd; border-color:var(--brass);}
+  .rate-chip.picked{background:var(--ink); color:var(--paper); border-color:var(--ink);}
+
+  .stamp{
+    position:absolute; top:38%; right:8%;
+    font-family:'Fraunces',serif; font-weight:900; font-size:38px;
+    border:5px solid; border-radius:8px; padding:4px 16px;
+    transform:rotate(-14deg) scale(0);
+    opacity:0; pointer-events:none;
+    text-transform:uppercase; letter-spacing:.05em;
+    animation:stampIn .5s cubic-bezier(.2,1.6,.4,1) forwards;
+  }
+  .stamp.approve{color:var(--green); border-color:var(--green);}
+  .stamp.reject{color:var(--red); border-color:var(--red);}
+  .stamp.review{color:var(--brass-dark); border-color:var(--brass-dark);}
+  @keyframes stampIn{
+    0%{opacity:0; transform:rotate(-14deg) scale(2.2);}
+    60%{opacity:1; transform:rotate(-14deg) scale(0.9);}
+    100%{opacity:.92; transform:rotate(-14deg) scale(1);}
+  }
+
+  .dossier-strip{
+    display:flex; gap:6px; margin:6px 0 22px;
+  }
+  .dossier-dot{
+    width:26px; height:5px; border-radius:3px; background:#d9cca3;
+  }
+  .dossier-dot.done{background:var(--brass-dark);}
+  .dossier-dot.active{background:var(--ink);}
+
+  .task-grid{display:grid; grid-template-columns:1fr; gap:10px; margin:16px 0;}
+  .task-pill{
+    border:1.5px solid #d9cca3; background:#fffdf7; border-radius:4px;
+    padding:12px 14px; font-size:14.5px; cursor:pointer; display:flex; justify-content:space-between; align-items:center;
+    transition:all .15s ease;
+  }
+  .task-pill:hover{border-color:var(--brass);}
+  .task-pill.selected{border-color:var(--ink); background:#fbf6ea; box-shadow:0 0 0 1.5px var(--ink) inset;}
+  .task-pill.assigned{opacity:.5; cursor:default;}
+  .task-pill .badge{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--slate);}
+
+  .bucket-row{display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin:14px 0 4px;}
+  .bucket{
+    border:2px dashed #c9b98c; border-radius:6px; padding:14px 8px; text-align:center;
+    cursor:pointer; font-size:13.5px; font-weight:600; color:var(--slate);
+    min-height:70px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+    transition:all .15s ease;
+  }
+  .bucket:hover{border-color:var(--brass); color:var(--text);}
+  .bucket .icon{font-size:22px;}
+
+  .textarea{
+    width:100%; border:1.5px solid #d9cca3; background:#fffdf7; border-radius:4px;
+    padding:12px 14px; font-family:'IBM Plex Sans',sans-serif; font-size:14.5px; color:var(--text);
+    resize:vertical; min-height:70px;
+  }
+  .field-label{
+    font-family:'IBM Plex Mono',monospace; font-size:11px; text-transform:uppercase;
+    letter-spacing:.08em; color:var(--brass-dark); margin:16px 0 6px; display:block;
+  }
+
+  .stars{font-size:18px; letter-spacing:2px; color:var(--brass-dark);}
+  .dash-row{display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--paper-line);}
+  .dash-row:last-child{border-bottom:none;}
+
+  .result-card{
+    border:1.5px solid var(--brass); border-radius:6px; padding:20px; text-align:center;
+    background:linear-gradient(180deg,#fffdf7,#fbf3dd); margin-top:10px;
+  }
+  .result-emoji{font-size:44px; display:block; margin-bottom:8px;}
+
+  .final-badges{display:flex; gap:18px; justify-content:center; margin:22px 0 6px; flex-wrap:wrap;}
+  .badge-circle{
+    width:96px; text-align:center; font-size:12px; color:#4a4030; font-weight:600;
+  }
+  .badge-circle .icon{
+    width:74px; height:74px; border-radius:50%; margin:0 auto 8px;
+    background:radial-gradient(circle at 35% 30%, #fdf1c9, var(--brass) 70%);
+    display:flex; align-items:center; justify-content:center; font-size:32px;
+    box-shadow:0 6px 16px rgba(201,162,39,0.4), inset 0 0 0 2px #8f6c15;
+  }
+
+  .muted{color:var(--slate); font-size:13.5px;}
+  .hidden{display:none !important;}
+  .center{text-align:center;}
+
+  ::selection{background:var(--brass); color:#1b1f2a;}
+
+  @media (max-width:520px){
+    .card{padding:24px 18px 26px;}
+    h1{font-size:24px;}
+    .bucket-row{grid-template-columns:1fr 1fr 1fr; gap:6px;}
+    .bucket{padding:10px 4px; font-size:11.5px;}
+    .bucket .icon{font-size:18px;}
+    .stamp{font-size:26px; right:4%;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="brandbar">
+    <div class="brand-left">
+      <div class="seal">AI</div>
+      <span>Responsible AI Review Board · Case File 07</span>
+    </div>
+    <span id="screenTag">MISSION BRIEF</span>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="xp" id="xpTag">0 XP</div>
+  </div>
+
+  <div class="card" id="cardRoot">
+    <!-- content injected by JS -->
+  </div>
+</div>
+
+<script>
+/* ---------------- STATE ---------------- */
+const state = {
+  xp: 0,
+  screenIndex: 0,
+  act1: { i:0, ratings:[] },
+  act2: { i:0, choices:[] },
+  act3: { i:0, assigned:{}, selected:null, i2:0, review:[] },
+  act4: { problem:null, canvas:{}, reflections:{}, quiz:[], quizStep:0 }
+};
+
+const screens = ['brief','act1intro','act1','act1summary','act2intro','act2','act2dash','act3intro','act3','act3b','act4intro','act4canvas','act4reflect','act4quiz','act4grad','final'];
+
+function addXP(n){
+  state.xp += n;
+  document.getElementById('xpTag').textContent = state.xp + ' XP';
+}
+function setProgress(){
+  const pct = Math.round((state.screenIndex/(screens.length-1))*100);
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+function go(name){
+  state.screenIndex = screens.indexOf(name);
+  setProgress();
+  render(name);
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function tag(t){ document.getElementById('screenTag').textContent = t; }
+
+/* ---------------- DATA ---------------- */
+const act1Chapters = [
+  {
+    title:"Future Careers",
+    ai:"“By 2035, 90% of today's jobs will be fully automated and most people will not need to work.”",
+    context:"AI predicts future jobs.",
+    task:"Identify exaggerations.",
+    correct:"needs",
+    explain:"This response overstates certainty about the future. Reasonable forecasts describe change and new roles emerging — not near-total job loss. Confident, extreme predictions deserve a “needs verification” flag."
+  },
+  {
+    title:"Medical Advice",
+    ai:"“Your symptoms match a common cold. No need to see a doctor.”",
+    context:"AI answers a health question.",
+    task:"Check reliability.",
+    correct:"unsafe",
+    explain:"AI cannot examine a patient or rule out serious conditions. Presenting a diagnosis with no recommendation to consult a professional is an unsafe recommendation, even if it sounds plausible."
+  },
+  {
+    title:"Hiring Recommendation",
+    ai:"“Candidate A is the best fit — they attended a well-known university.”",
+    context:"AI ranks job applicants.",
+    task:"Identify possible bias.",
+    correct:"biased",
+    explain:"Ranking by university prestige alone can unfairly disadvantage equally capable candidates from less prestigious schools. That's a classic proxy for bias hiding inside a confident-sounding answer."
+  },
+  {
+    title:"Historical Answer",
+    ai:"“The Treaty of Verdun was signed in 1502 by three European kings.”",
+    context:"AI provides information.",
+    task:"Detect hallucination.",
+    correct:"unsafe",
+    explain:"This date and framing are fabricated (the real Treaty of Verdun was 843 CE). A confident, fluent answer can still be a complete hallucination — fluency is not the same as accuracy."
+  },
+  {
+    title:"School Policy Advice",
+    ai:"“To reduce phone distractions, schools should simply ban all devices, no exceptions.”",
+    context:"AI suggests a solution.",
+    task:"Identify missing perspectives.",
+    correct:"biased",
+    explain:"This ignores students with medical or accessibility needs, emergency contact concerns, and teacher input. A one-size-fits-all answer is missing key stakeholder perspectives."
+  }
+];
+const ratingOptions = [
+  {key:'accurate', label:'✅ Accurate'},
+  {key:'biased', label:'⚠️ Potentially Biased'},
+  {key:'needs', label:'❓ Needs Verification'},
+  {key:'unsafe', label:'🚫 Unsafe Recommendation'}
+];
+
+const act2Scenarios = [
+  {
+    title:"Scenario 1 · Hospital",
+    prompt:"AI recommends a cancer treatment plan.",
+    options:["AI decides alone","Doctor decides alone","AI + Doctor"],
+    correctIndex:2,
+    feedback:"Excellent decision. AI can analyze medical data quickly, but doctors provide clinical judgement, empathy, and accountability."
+  },
+  {
+    title:"Scenario 2 · Recruitment",
+    prompt:"An AI system screens thousands of job applications.",
+    options:["AI decides alone","AI + Human Review","No AI involvement"],
+    correctIndex:1,
+    feedback:"AI can save time sorting applications, but a human reviewer catches bias and considers context a resume can't capture."
+  },
+  {
+    title:"Scenario 3 · Autonomous Vehicles",
+    prompt:"A self-driving car needs to navigate a busy intersection.",
+    options:["AI + Human Monitoring","Human drives, AI off","AI fully unsupervised"],
+    correctIndex:0,
+    feedback:"AI reacts faster than humans in routine driving, but human monitoring and override options remain essential for edge cases."
+  },
+  {
+    title:"Scenario 4 · Student Essays",
+    prompt:"An AI tool grades student essays for a national exam.",
+    options:["AI + Teacher Review","AI grades alone","Teacher grades, ignores AI"],
+    correctIndex:0,
+    feedback:"AI can flag grammar and structure quickly, but teachers understand context, creativity, and individual student growth."
+  },
+  {
+    title:"Scenario 5 · Emergency Response",
+    prompt:"AI predicts where a natural disaster will hit hardest.",
+    options:["AI + Human Decision Making","AI controls response alone","Ignore AI predictions"],
+    correctIndex:0,
+    feedback:"AI models can process huge amounts of data fast, but human responders make the final judgement calls that affect lives."
+  }
+];
+
+const act3Tasks = [
+  {task:"Translate a document", answer:"ai"},
+  {task:"Comfort a grieving family", answer:"human"},
+  {task:"Detect fraud in banking", answer:"both"},
+  {task:"Generate a first draft of a report", answer:"ai"},
+  {task:"Judge a debate competition", answer:"both"},
+  {task:"Perform emergency surgery", answer:"human"},
+  {task:"Predict traffic congestion", answer:"ai"},
+  {task:"Resolve a conflict between friends", answer:"human"}
+];
+const bucketLabels = {ai:"🤖 AI", human:"👤 Human", both:"🤝 Both"};
+
+const act3Systems = [
+  {name:"Face Recognition in Schools", answer:"review", note:"Powerful, but raises privacy and consent concerns for minors — needs careful review before use."},
+  {name:"Homework Helper", answer:"safe", note:"Low stakes, easily checked by a student or teacher — generally safe to use."},
+  {name:"AI Therapist", answer:"oversight", note:"Mental health is sensitive and high-risk — needs human oversight, never a full replacement for a professional."},
+  {name:"AI Career Advisor", answer:"review", note:"Helpful for ideas, but recommendations can reflect biased data — needs review before students rely on it."},
+  {name:"AI Emergency Alert System", answer:"monitored", note:"Speed saves lives here, but false alarms or missed signals mean it needs ongoing human monitoring."}
+];
+const systemOptions = [
+  {key:'safe', label:'Generally Safe'},
+  {key:'review', label:'Needs Review'},
+  {key:'oversight', label:'Needs Human Oversight'},
+  {key:'monitored', label:'Safe with Monitoring'}
+];
+
+const problems = ["Food Waste","Pollution","Road Safety","Healthcare","Mental Health","Inclusive Education"];
+
+const quizQuestions = [
+  {
+    q:"An AI tool gives you a confident answer for a school project. What's your first move?",
+    options:[
+      {label:"Check it against another trustworthy source before using it.", trait:"critical"},
+      {label:"Think about who it might be unfair to before trusting it.", trait:"guardian"},
+      {label:"Think about how to combine it with your own ideas.", trait:"innovator"},
+      {label:"Ask a classmate or teacher what they think of it too.", trait:"collaborator"}
+    ]
+  },
+  {
+    q:"You're designing a new AI tool for your school. What matters most to you?",
+    options:[
+      {label:"That it treats every student fairly and protects privacy.", trait:"guardian"},
+      {label:"That it's genuinely useful and pushes an old process forward.", trait:"innovator"},
+      {label:"That people can question and understand how it decides things.", trait:"critical"},
+      {label:"That students and staff shape it together, not just engineers.", trait:"collaborator"}
+    ]
+  },
+  {
+    q:"An AI recommendation turns out to be wrong. What's your instinct?",
+    options:[
+      {label:"Figure out why it happened and verify next time.", trait:"critical"},
+      {label:"Make sure no one was harmed by trusting it blindly.", trait:"guardian"},
+      {label:"See it as a chance to improve the system's design.", trait:"innovator"},
+      {label:"Talk it through with the people affected by it.", trait:"collaborator"}
+    ]
+  }
+];
+const quizResults = {
+  guardian:{emoji:"🧭", name:"Ethical Guardian", desc:"You carefully consider fairness, privacy, and human rights before trusting AI."},
+  critical:{emoji:"🔍", name:"Critical Evaluator", desc:"You question AI outputs and verify evidence before making decisions."},
+  innovator:{emoji:"💡", name:"Innovation Leader", desc:"You enjoy designing AI solutions while balancing creativity and responsibility."},
+  collaborator:{emoji:"🤝", name:"Human-Centered Collaborator", desc:"You recognize that the best outcomes come from humans and AI working together."}
+};
+
+/* ---------------- RENDER ---------------- */
+const root = document.getElementById('cardRoot');
+
+function render(name){
+  if(name==='brief') return renderBrief();
+  if(name==='act1intro') return renderAct1Intro();
+  if(name==='act1') return renderAct1();
+  if(name==='act1summary') return renderAct1Summary();
+  if(name==='act2intro') return renderAct2Intro();
+  if(name==='act2') return renderAct2();
+  if(name==='act2dash') return renderAct2Dash();
+  if(name==='act3intro') return renderAct3Intro();
+  if(name==='act3') return renderAct3();
+  if(name==='act3b') return renderAct3b();
+  if(name==='act4intro') return renderAct4Intro();
+  if(name==='act4canvas') return renderAct4Canvas();
+  if(name==='act4reflect') return renderAct4Reflect();
+  if(name==='act4quiz') return renderAct4Quiz();
+  if(name==='act4grad') return renderAct4Grad();
+  if(name==='final') return renderFinal();
+}
+
+function shell(caseNum, eyebrow, bodyHtml){
+  root.innerHTML = `<div class="case-number">${caseNum}</div>
+    <div class="eyebrow">${eyebrow}</div>
+    ${bodyHtml}`;
+}
+
+/* ---- Mission Brief ---- */
+function renderBrief(){
+  tag('MISSION BRIEF');
+  shell('FILE NO. RAB-07', 'Responsible AI Review Board', `
+    <h1>Welcome, Board Member.</h1>
+    <p class="lede">Every AI system that wants to reach the public first crosses your desk. Your job is not to build AI — it's to <strong>judge</strong> it: to catch bias before it spreads, hallucination before it misleads, and risk before it harms.</p>
+    <p>Over four case files, you'll review live AI outputs, rule on ethical deployments, sort tasks between humans and machines, and design a responsible AI system of your own.</p>
+    <p class="muted">Estimated time: 8–10 minutes · 4 case files · 1 certificate on the line.</p>
+    <div class="btn-row">
+      <button class="btn btn-brass" onclick="addXP(5); go('act1intro')">Accept the appointment →</button>
+    </div>
+  `);
+}
+
+/* ---- Activity 1 ---- */
+function renderAct1Intro(){
+  tag('CASE FILE 1 · ETHICS REVIEW');
+  shell('FILE NO. RAB-07-A', 'Activity 1 · AI Ethics Review Board', `
+    <h1>Five AI Answers. You Decide.</h1>
+    <p class="lede">You'll see five real-sounding AI responses. For each, rate whether it's Accurate, Potentially Biased, Needs Verification, or an Unsafe Recommendation — then see the reasoning.</p>
+    <p class="muted">Ask yourself: is every AI answer completely correct? Can AI show bias, or confidently present incorrect information? Why should a human stay involved?</p>
+    <div class="btn-row">
+      <button class="btn btn-brass" onclick="go('act1')">Begin review →</button>
+    </div>
+  `);
+}
+function renderAct1(){
+  tag('CASE FILE 1 · ETHICS REVIEW');
+  const i = state.act1.i;
+  const ch = act1Chapters[i];
+  const picked = state.act1.ratings[i];
+
+  let dots = act1Chapters.map((c,idx)=>{
+    let cls = 'dossier-dot';
+    if(idx < i) cls += ' done'; else if(idx===i) cls += ' active';
+    return `<div class="${cls}"></div>`;
+  }).join('');
+
+  let chips = ratingOptions.map(o=>{
+    let cls='rate-chip';
+    if(picked===o.key) cls += ' picked';
+    return `<button class="${cls}" ${picked?'disabled':''} onclick="rateChapter('${o.key}')">${o.label}</button>`;
+  }).join('');
+
+  let feedback = '';
+  if(picked){
+    const correct = picked === ch.correct;
+    feedback = `<div class="feedback-box ${correct?'':'warn'}">
+      ${correct ? '<strong>Correct call.</strong> ' : '<strong>Worth a second look —</strong> '}${ch.explain}
+    </div>`;
+  }
+
+  shell('FILE NO. RAB-07-A', `Chapter ${i+1} of 5 · ${ch.title}`, `
+    <div class="dossier-strip">${dots}</div>
+    <h2>${ch.title}</h2>
+    <p class="muted">${ch.context}</p>
+    <div class="feedback-box" style="border-left-color:var(--ink); background:#eef0f6;">
+      <strong>AI says:</strong> ${ch.ai}
+    </div>
+    <span class="field-label">${ch.task}</span>
+    <div class="chip-row">${chips}</div>
+    ${feedback}
+    <div class="btn-row">
+      <button class="btn btn-brass" id="act1next" ${picked?'':'disabled'} onclick="act1Next()">${i<4 ? 'Next chapter →' : 'See your review summary →'}</button>
+    </div>
+  `);
+}
+function rateChapter(key){
+  state.act1.ratings[state.act1.i] = key;
+  const correct = key === act1Chapters[state.act1.i].correct;
+  addXP(correct?8:3);
+  render('act1');
+}
+function act1Next(){
+  if(state.act1.i < 4){ state.act1.i++; render('act1'); }
+  else { go('act1summary'); }
+}
+function renderAct1Summary(){
+  tag('CASE FILE 1 · COMPLETE');
+  const correctCount = state.act1.ratings.filter((r,idx)=>r===act1Chapters[idx].correct).length;
+  shell('FILE NO. RAB-07-A', 'Review Summary', `
+    <h1>Board Review: ${correctCount}/5 correct</h1>
+    <p class="lede">Knowledge check, Board Member: who stays responsible for important AI decisions, even when an answer sounds confident?</p>
+    <div class="choice-list" id="kc">
+      <button class="choice" onclick="kcAnswer(this,true)"><span class="tag">A</span> Humans remain accountable, with judgement and ethics AI can't fully replace</button>
+      <button class="choice" onclick="kcAnswer(this,false)"><span class="tag">B</span> The AI system, once it sounds confident enough</button>
+    </div>
+    <div id="kcFeedback"></div>
+    <div class="btn-row">
+      <button class="btn btn-brass" id="act1summaryNext" disabled onclick="go('act2intro')">Continue to Case File 2 →</button>
+    </div>
+  `);
+}
+function kcAnswer(el, correct){
+  document.querySelectorAll('#kc .choice').forEach(c=>c.classList.add('locked'));
+  el.classList.add(correct?'correct':'incorrect');
+  document.getElementById('kcFeedback').innerHTML = `<div class="feedback-box ${correct?'':'bad'}">
+    ${correct ? 'Exactly — accountability, empathy, and ethical judgement stay human, no matter how fluent AI sounds.' : 'Not quite — AI should never be the final word on important decisions. Humans stay accountable.'}
+  </div>`;
+  addXP(correct?10:2);
+  document.getElementById('act1summaryNext').disabled = false;
+}
+
+/* ---- Activity 2 ---- */
+function renderAct2Intro(){
+  tag('CASE FILE 2 · DECISION BOARD');
+  shell('FILE NO. RAB-07-B', 'Activity 2 · Responsible AI Decision Board', `
+    <h1>Five Organizations Request Approval.</h1>
+    <p class="lede">You sit on the National Responsible AI Council. Each organization wants to deploy AI in a sensitive situation. Approve, reject, or recommend human oversight — and watch the AI mentor respond to your ruling.</p>
+    <div class="btn-row">
+      <button class="btn btn-brass" onclick="go('act2')">Open the docket →</button>
+    </div>
+  `);
+}
+function renderAct2(){
+  tag('CASE FILE 2 · DECISION BOARD');
+  const i = state.act2.i;
+  const sc = act2Scenarios[i];
+  const chosen = state.act2.choices[i];
+
+  let dots = act2Scenarios.map((c,idx)=>{
+    let cls = 'dossier-dot';
+    if(idx < i) cls += ' done'; else if(idx===i) cls += ' active';
+    return `<div class="${cls}"></div>`;
+  }).join('');
+
+  let opts = sc.options.map((o,idx)=>{
+    let cls = 'choice';
+    if(chosen!==undefined){
+      cls += ' locked';
+      if(idx===sc.correctIndex) cls += ' correct';
+      else if(idx===chosen) cls += ' incorrect';
+    }
+    return `<button class="${cls}" ${chosen!==undefined?'disabled':''} onclick="act2Pick(${idx})"><span class="tag">${String.fromCharCode(65+idx)}</span> ${o}</button>`;
+  }).join('');
+
+  let stamp = '';
+  if(chosen!==undefined){
+    const right = chosen===sc.correctIndex;
+    stamp = `<div class="stamp ${right?'approve':'review'}">${right?'Approved':'Noted'}</div>`;
+  }
+
+  let feedback = chosen!==undefined ? `<div class="feedback-box">${sc.feedback}</div>` : '';
+
+  shell('FILE NO. RAB-07-B', `${sc.title} · ${i+1} of 5`, `
+    <div class="dossier-strip">${dots}</div>
+    ${stamp}
+    <h2>${sc.title}</h2>
+    <p class="lede">${sc.prompt}</p>
+    <span class="field-label">Your ruling</span>
+    <div class="choice-list">${opts}</div>
+    ${feedback}
+    <div class="btn-row">
+      <button class="btn btn-brass" ${chosen!==undefined?'':'disabled'} onclick="act2Next()">${i<4?'Next case →':'View ethics dashboard →'}</button>
+    </div>
+  `);
+}
+function act2Pick(idx){
+  state.act2.choices[state.act2.i] = idx;
+  addXP(idx===act2Scenarios[state.act2.i].correctIndex ? 10 : 4);
+  render('act2');
+}
+function act2Next(){
+  if(state.act2.i<4){ state.act2.i++; render('act2'); }
+  else go('act2dash');
+}
+function renderAct2Dash(){
+  tag('CASE FILE 2 · COMPLETE');
+  const correct = state.act2.choices.filter((c,idx)=>c===act2Scenarios[idx].correctIndex).length;
+  function starsFor(n){ return '★'.repeat(n) + '☆'.repeat(5-n); }
+  const fairness = Math.max(3, correct);
+  shell('FILE NO. RAB-07-B', 'Ethical Checkpoint', `
+    <h1>Council Dashboard</h1>
+    <p>Why should humans remain involved, even when AI performs well?</p>
+    <textarea class="textarea" id="ethicsReason" placeholder="Type your reasoning here — judgement, empathy, accountability..."></textarea>
+    <div class="btn-row" style="margin-top:12px;">
+      <button class="btn btn-ghost" onclick="submitEthicsReason()">Submit reasoning</button>
+    </div>
+    <div id="dashResult" class="hidden">
+      <div class="dash-row"><span>Fairness</span><span class="stars">${starsFor(fairness)}</span></div>
+      <div class="dash-row"><span>Transparency</span><span class="stars">${starsFor(5)}</span></div>
+      <div class="dash-row"><span>Safety</span><span class="stars">${starsFor(4)}</span></div>
+      <div class="dash-row"><span>Human Oversight</span><span class="stars">${starsFor(5)}</span></div>
+      <div class="btn-row">
+        <button class="btn btn-brass" onclick="go('act3intro')">Continue to Case File 3 →</button>
+      </div>
+    </div>
+  `);
+}
+function submitEthicsReason(){
+  addXP(8);
+  document.getElementById('dashResult').classList.remove('hidden');
+}
+
+/* ---- Activity 3 ---- */
+function renderAct3Intro(){
+  tag('CASE FILE 3 · AI OR HUMAN?');
+  shell('FILE NO. RAB-07-C', 'Activity 3 · AI or Human?', `
+    <h1>Sort the Work.</h1>
+    <p class="lede">Governments are asking: who should really be doing this — AI, a human, or both together? Assign each task to the right bucket. Tap a task, then tap where it belongs.</p>
+    <div class="btn-row">
+      <button class="btn btn-brass" onclick="go('act3')">Start sorting →</button>
+    </div>
+  `);
+}
+function renderAct3(){
+  tag('CASE FILE 3 · AI OR HUMAN?');
+  const assignedCount = Object.keys(state.act3.assigned).length;
+  let tasksHtml = act3Tasks.map((t,idx)=>{
+    const done = state.act3.assigned[idx]!==undefined;
+    const sel = state.act3.selected===idx;
+    let cls='task-pill';
+    if(done) cls += ' assigned';
+    if(sel) cls += ' selected';
+    let badge = done ? bucketLabels[state.act3.assigned[idx]] + (state.act3.assigned[idx]===t.answer ? ' ✓' : ' ✗') : '';
+    return `<div class="${cls}" onclick="${done?'':'selectTask('+idx+')'}">
+      <span>${t.task}</span><span class="badge">${badge}</span>
+    </div>`;
+  }).join('');
+
+  shell('FILE NO. RAB-07-C', `Task Sorting · ${assignedCount}/8 placed`, `
+    <h2>Where does this task belong?</h2>
+    <p class="muted">Tap a task below, then tap 🤖 AI, 👤 Human, or 🤝 Both to place it.</p>
+    <div class="task-grid">${tasksHtml}</div>
+    <div class="bucket-row">
+      <div class="bucket" onclick="assignTask('ai')"><span class="icon">🤖</span>AI</div>
+      <div class="bucket" onclick="assignTask('human')"><span class="icon">👤</span>Human</div>
+      <div class="bucket" onclick="assignTask('both')"><span class="icon">🤝</span>Both</div>
+    </div>
+    <div id="assignFeedback"></div>
+    <div class="btn-row">
+      <button class="btn btn-brass" ${assignedCount===8?'':'disabled'} onclick="go('act3b')">Next: safety review →</button>
+    </div>
+  `);
+}
+function selectTask(idx){
+  state.act3.selected = idx;
+  render('act3');
+}
+function assignTask(bucket){
+  const idx = state.act3.selected;
+  if(idx===null || idx===undefined) return;
+  state.act3.assigned[idx] = bucket;
+  const correct = bucket === act3Tasks[idx].answer;
+  addXP(correct?6:2);
+  state.act3.selected = null;
+  render('act3');
+  const fb = document.getElementById('assignFeedback');
+  if(fb){
+    fb.innerHTML = `<div class="feedback-box ${correct?'':'warn'}">
+      "${act3Tasks[idx].task}" is best handled by ${bucketLabels[act3Tasks[idx].answer]}${correct?' — that\'s your call too.':'. '}
+    </div>`;
+  }
+}
+function renderAct3b(){
+  tag('CASE FILE 3 · SAFETY REVIEW');
+  const i = state.act3.i2;
+  const sys = act3Systems[i];
+  const picked = state.act3.review[i];
+
+  let dots = act3Systems.map((c,idx)=>{
+    let cls = 'dossier-dot';
+    if(idx < i) cls += ' done'; else if(idx===i) cls += ' active';
+    return `<div class="${cls}"></div>`;
+  }).join('');
+
+  let chips = systemOptions.map(o=>{
+    let cls = 'rate-chip';
+    if(picked===o.key) cls += ' picked';
+    return `<button class="${cls}" ${picked?'disabled':''} onclick="reviewSystem('${o.key}')">${o.label}</button>`;
+  }).join('');
+
+  let feedback = picked ? `<div class="feedback-box ${picked===sys.answer?'':'warn'}">${sys.note}</div>` : '';
+
+  shell('FILE NO. RAB-07-C', `System ${i+1} of 5`, `
+    <div class="dossier-strip">${dots}</div>
+    <h2>${sys.name}</h2>
+    <p class="muted">Is this AI system safe to deploy? Rate it below.</p>
+    <div class="chip-row">${chips}</div>
+    ${feedback}
+    <div class="btn-row">
+      <button class="btn btn-brass" ${picked?'':'disabled'} onclick="act3bNext()">${i<4?'Next system →':'Continue to final case →'}</button>
+    </div>
+  `);
+}
+function reviewSystem(key){
+  state.act3.review[state.act3.i2] = key;
+  addXP(key===act3Systems[state.act3.i2].answer?7:2);
+  render('act3b');
+}
+function act3bNext(){
+  if(state.act3.i2<4){ state.act3.i2++; render('act3b'); }
+  else go('act4intro');
+}
+
+/* ---- Activity 4 ---- */
+function renderAct4Intro(){
+  tag('CASE FILE 4 · FUTURE LEADER');
+  shell('FILE NO. RAB-07-D', 'Activity 4 · Future AI Leader', `
+    <h1>Design a Responsible AI Solution.</h1>
+    <p class="lede">Pick a real-world problem and sketch an AI system to help address it — one that's honest about its risks and clear about where humans stay in charge.</p>
+    <span class="field-label">Choose your problem</span>
+    <div class="choice-list" id="probList">
+      ${problems.map(p=>`<button class="choice" onclick="pickProblem(this,'${p}')">${p}</button>`).join('')}
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-brass" id="probNext" disabled onclick="go('act4canvas')">Open project canvas →</button>
+    </div>
+  `);
+}
+function pickProblem(el,p){
+  document.querySelectorAll('#probList .choice').forEach(c=>c.classList.remove('correct'));
+  el.classList.add('correct');
+  state.act4.problem = p;
+  document.getElementById('probNext').disabled = false;
+}
+function renderAct4Canvas(){
+  tag('CASE FILE 4 · PROJECT CANVAS');
+  const c = state.act4.canvas;
+  shell('FILE NO. RAB-07-D', `Project Canvas · ${state.act4.problem}`, `
+    <h1>AI Project Canvas</h1>
+    <span class="field-label">Your AI solution</span>
+    <textarea class="textarea" id="c_solution" placeholder="Describe the AI system you'd build.">${c.solution||''}</textarea>
+    <span class="field-label">Benefits</span>
+    <textarea class="textarea" id="c_benefits" placeholder="What positive impact would it have?">${c.benefits||''}</textarea>
+    <span class="field-label">Possible risks</span>
+    <textarea class="textarea" id="c_risks" placeholder="What could go wrong?">${c.risks||''}</textarea>
+    <span class="field-label">Human responsibility</span>
+    <textarea class="textarea" id="c_human" placeholder="What oversight does this need?">${c.human||''}</textarea>
+    <div class="btn-row">
+      <button class="btn btn-brass" onclick="saveCanvas()">Save canvas →</button>
+    </div>
+  `);
+}
+function saveCanvas(){
+  state.act4.canvas = {
+    solution: document.getElementById('c_solution').value,
+    benefits: document.getElementById('c_benefits').value,
+    risks: document.getElementById('c_risks').value,
+    human: document.getElementById('c_human').value
+  };
+  addXP(15);
+  go('act4reflect');
+}
+function renderAct4Reflect(){
+  tag('CASE FILE 4 · REFLECTION');
+  const r = state.act4.reflections;
+  shell('FILE NO. RAB-07-D', 'Leadership Reflection', `
+    <h1>Three Reflections</h1>
+    <span class="field-label">One thing AI should never replace</span>
+    <textarea class="textarea" id="r1" placeholder="Your answer...">${r.r1||''}</textarea>
+    <span class="field-label">One skill humans should always develop</span>
+    <textarea class="textarea" id="r2" placeholder="Your answer...">${r.r2||''}</textarea>
+    <span class="field-label">How will you use AI responsibly?</span>
+    <textarea class="textarea" id="r3" placeholder="Your answer...">${r.r3||''}</textarea>
+    <div class="btn-row">
+      <button class="btn btn-brass" onclick="saveReflection()">Submit reflection →</button>
+    </div>
+  `);
+}
+function saveReflection(){
+  state.act4.reflections = {
+    r1: document.getElementById('r1').value,
+    r2: document.getElementById('r2').value,
+    r3: document.getElementById('r3').value
+  };
+  addXP(15);
+  go('act4quiz');
+}
+function renderAct4Quiz(){
+  tag('CASE FILE 4 · PERSONALITY QUIZ');
+  const step = state.act4.quizStep;
+  if(step >= quizQuestions.length){
+    // compute result
+    const tally = {};
+    state.act4.quiz.forEach(t=>tally[t]=(tally[t]||0)+1);
+    let best='guardian', bestN=-1;
+    Object.keys(quizResults).forEach(k=>{ if((tally[k]||0)>bestN){best=k; bestN=tally[k]||0;} });
+    const res = quizResults[best];
+    shell('FILE NO. RAB-07-D', 'What Kind of Responsible AI Leader Are You?', `
+      <h1>Your Result</h1>
+      <div class="result-card">
+        <span class="result-emoji">${res.emoji}</span>
+        <h2>${res.name}</h2>
+        <p>${res.desc}</p>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-brass" onclick="go('act4grad')">Final challenge →</button>
+      </div>
+    `);
+    return;
+  }
+  const q = quizQuestions[step];
+  shell('FILE NO. RAB-07-D', `Question ${step+1} of ${quizQuestions.length}`, `
+    <h2>${q.q}</h2>
+    <div class="choice-list">
+      ${q.options.map((o,idx)=>`<button class="choice" onclick="quizPick('${o.trait}')">${o.label}</button>`).join('')}
+    </div>
+  `);
+}
+function quizPick(trait){
+  state.act4.quiz.push(trait);
+  state.act4.quizStep++;
+  addXP(5);
+  render('act4quiz');
+}
+function renderAct4Grad(){
+  tag('CASE FILE 4 · GRADUATION CHALLENGE');
+  shell('FILE NO. RAB-07-D', 'Graduation Challenge', `
+    <h1>Final Ruling.</h1>
+    <p class="lede">A school proposes: "AI wants to monitor students using facial recognition to improve discipline."</p>
+    <div class="choice-list" id="gradChoices">
+      <button class="choice" onclick="gradPick(this,false)"><span class="tag">A</span> Approve</button>
+      <button class="choice" onclick="gradPick(this,true)"><span class="tag">B</span> Approve with safeguards</button>
+      <button class="choice" onclick="gradPick(this,false)"><span class="tag">C</span> Reject</button>
+    </div>
+    <div id="gradFeedback"></div>
+    <div class="btn-row">
+      <button class="btn btn-brass" id="gradNext" disabled onclick="go('final')">See your certificate →</button>
+    </div>
+  `);
+}
+function gradPick(el, correct){
+  document.querySelectorAll('#gradChoices .choice').forEach(c=>c.classList.add('locked'));
+  el.classList.add(correct?'correct':'incorrect');
+  document.getElementById('gradFeedback').innerHTML = `<div class="feedback-box ${correct?'':'warn'}">
+    ${correct ? 'Strong ruling.' : 'Consider this instead —'} Privacy, consent, transparency, and proportionality all matter. Safeguards let a school benefit from safety tools without giving up students' rights.
+  </div>`;
+  addXP(correct?15:5);
+  document.getElementById('gradNext').disabled = false;
+}
+
+/* ---- Final ---- */
+function renderFinal(){
+  tag('MISSION COMPLETE');
+  shell('FILE NO. RAB-07 — CLOSED', 'Mission Completion Dashboard', `
+    <h1>Case Closed, Board Member.</h1>
+    <p class="lede">You've reviewed AI outputs, ruled on ethical deployments, sorted human vs. AI work, and designed a responsible AI system of your own.</p>
+    <div class="final-badges">
+      <div class="badge-circle"><div class="icon">🌍</div>Responsible AI Leader</div>
+      <div class="badge-circle"><div class="icon">🏆</div>Certified AI Explorer</div>
+    </div>
+    <div class="dash-row"><span>Total XP earned</span><span class="stars">${state.xp} XP</span></div>
+    <div class="dash-row"><span>Mission Brief</span><span>Viewed ✓</span></div>
+    <div class="dash-row"><span>Ethics Review</span><span>Completed ✓</span></div>
+    <div class="dash-row"><span>Decision Board</span><span>Completed ✓</span></div>
+    <div class="dash-row"><span>AI or Human Sort</span><span>Completed ✓</span></div>
+    <div class="dash-row"><span>Future AI Project</span><span>Submitted ✓</span></div>
+    <p class="muted" style="margin-top:18px;">You've completed the journey from AI awareness to responsible AI leadership — the central competency of every AI-literate citizen.</p>
+  `);
+}
+
+/* ---------------- INIT ---------------- */
+go('brief');
+</script>
+</body>
+</html>
